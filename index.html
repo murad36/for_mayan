@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0618">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Для Майи 💌</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💖</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="locked">
+
+  <!-- Фон: звёзды и сердечки -->
+  <canvas id="stars" aria-hidden="true"></canvas>
+  <div id="hearts" aria-hidden="true"></div>
+  <div id="bursts" aria-hidden="true"></div>
+
+  <!-- Экран 0: конверт -->
+  <div id="envelope-screen">
+    <div class="envelope" id="envelope" role="button" tabindex="0" aria-label="Открыть письмо">
+      <div class="env-body"></div>
+      <div class="env-letter">
+        <span class="letter-small">Для</span>
+        <span class="letter-name" data-name-gen>Майи</span>
+        <span class="letter-heart">💌</span>
+      </div>
+      <div class="env-front"></div>
+      <div class="env-flap"></div>
+      <div class="env-seal">❤️</div>
+    </div>
+    <p class="env-hint">Нажми, чтобы открыть</p>
+  </div>
+
+  <main class="content">
+
+    <!-- Секция 1: приветствие -->
+    <section class="section hero" id="hero">
+      <h1><span data-name>Киса</span>, это для тебя ❤️</h1>
+      <div id="typed" class="typed" aria-live="polite"></div>
+      <a class="scroll-hint" href="#counter" aria-label="Прокрутить вниз">↓</a>
+    </section>
+
+    <!-- Секция 2: счётчик -->
+    <section class="section reveal" id="counter">
+      <h2>Мы вместе уже…</h2>
+      <p class="sub">с <span id="since-text">23 мая 2026</span></p>
+      <div class="counter">
+        <div class="time-box"><span class="num" id="c-days">0</span><span class="lbl" id="l-days">дней</span></div>
+        <div class="time-box"><span class="num" id="c-hours">0</span><span class="lbl" id="l-hours">часов</span></div>
+        <div class="time-box"><span class="num" id="c-mins">0</span><span class="lbl" id="l-mins">минут</span></div>
+        <div class="time-box"><span class="num" id="c-secs">0</span><span class="lbl" id="l-secs">секунд</span></div>
+      </div>
+      <div class="card anniv">
+        <p id="anniv-text">…</p>
+        <div class="progress" aria-hidden="true"><span id="anniv-bar"></span></div>
+      </div>
+    </section>
+
+    <!-- Секция 3: галерея -->
+    <section class="section reveal" id="gallery">
+      <h2>Наши моменты 📸</h2>
+      <p class="sub">Нажми на фото, чтобы увеличить</p>
+      <div class="gallery-grid" id="gallery-grid"></div>
+    </section>
+
+    <!-- Секция 4: 100 причин -->
+    <section class="section reveal" id="reasons">
+      <h2>100 причин, почему я люблю тебя</h2>
+      <p class="sub">Нажми на карточку</p>
+      <div class="flip" id="reason-card" role="button" tabindex="0" aria-label="Показать причину">
+        <div class="flip-inner">
+          <div class="face front"><span class="big-emoji">💌</span><span>Твоя причина ждёт тебя</span></div>
+          <div class="face back"><span class="reason-num" id="reason-num"></span><p id="reason-text"></p></div>
+        </div>
+      </div>
+      <button class="btn btn-main" id="reason-next" type="button">Достать причину 💕</button>
+      <p class="seen" id="reason-seen"></p>
+    </section>
+
+    <!-- Секция 5: вопрос -->
+    <section class="section reveal" id="love">
+      <h2><span data-name>Киса</span>, ты меня любишь?</h2>
+      <div class="love-zone" id="love-zone">
+        <button class="btn btn-yes" id="btn-yes" type="button">Да ❤️</button>
+        <button class="btn btn-no" id="btn-no" type="button">Нет</button>
+      </div>
+      <p class="yes-result" id="yes-result" hidden></p>
+    </section>
+
+    <!-- Секция 6: финал -->
+    <section class="section reveal final" id="final">
+      <h2 id="final-title"></h2>
+      <p class="final-text" id="final-text"></p>
+      <button class="heart-big" id="final-heart" type="button" aria-label="Сердце">❤️</button>
+      <p class="signature" id="signature"></p>
+    </section>
+
+    <footer class="footer">Сделано с любовью 💖</footer>
+  </main>
+
+  <!-- Кнопка музыки -->
+  <button class="music-btn" id="music-btn" type="button" aria-label="Включить музыку" aria-pressed="false">🎵</button>
+  <div class="toast" id="toast" role="status"></div>
+
+  <!-- Просмотр фото -->
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <button class="lb-close" id="lb-close" type="button" aria-label="Закрыть">✕</button>
+    <button class="lb-nav lb-prev" id="lb-prev" type="button" aria-label="Назад">‹</button>
+    <figure class="lb-figure">
+      <div class="lb-media" id="lb-media"></div>
+      <figcaption id="lb-caption"></figcaption>
+    </figure>
+    <button class="lb-nav lb-next" id="lb-next" type="button" aria-label="Вперёд">›</button>
+  </div>
+
+  <script src="config.js" defer></script>
+  <script src="effects.js" defer></script>
+  <script src="script.js" defer></script>
+</body>
+</html>
