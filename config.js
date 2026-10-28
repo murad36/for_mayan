@@ -12,7 +12,7 @@ const CONFIG = {
 
   // Музыка: положи файл в папку music и назови song.mp3
   music: 'music/song.mp3',
-  musicVolume: 0.1,
+  musicVolume: 0.02,
 
   // Текст, который печатается сам (каждая строка — отдельный абзац)
   typingLines: [
