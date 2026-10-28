@@ -11,7 +11,7 @@ const CONFIG = {
   startDate: '2026-05-23',
 
   // Музыка: положи файл в папку music и назови song.mp3
-  music: 'music/song.mp3',
+  music: 'music/song_1.mp3',
   // Громкость музыки от 0 (тишина) до 1 (максимум). Тише: меньше число, например 0.1
   musicVolume: 0.2,
 
