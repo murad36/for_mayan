@@ -130,14 +130,45 @@
   let audio = null;
   let musicBroken = false;
   let fadeTimer = 0;
+  let isOn = false;      // музыка должна играть (по нажатию кнопки)
+  let curVol = 0;        // текущая громкость 0..1 (храним сами: на iPhone audio.volume не работает)
+  let audioCtx = null;
+  let gainNode = null;
+
+  // На iPhone/iPad громкость элемента <audio> менять нельзя, поэтому там используем Web Audio (GainNode)
+  function setupGain(a) {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return;
+    try {
+      audioCtx = new Ctx();
+      const src = audioCtx.createMediaElementSource(a);
+      gainNode = audioCtx.createGain();
+      gainNode.gain.value = 0;
+      src.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+    } catch (err) {
+      audioCtx = null;
+      gainNode = null;
+    }
+  }
+
+  function setVol(v) {
+    curVol = Math.max(0, Math.min(1, v));
+    if (gainNode) gainNode.gain.value = curVol;
+    else if (audio) audio.volume = curVol;
+  }
 
   function getAudio() {
     if (audio) return audio;
     audio = new Audio(CONFIG.music);
     audio.loop = true;
     audio.preload = 'auto';
-    audio.volume = 0;
-    audio.addEventListener('error', () => { musicBroken = true; setPlaying(false); });
+    audio.setAttribute('playsinline', '');
+    audio.addEventListener('error', () => { musicBroken = true; isOn = false; setPlaying(false); });
+    // Проверяем, работает ли audio.volume (на iPhone значение не меняется)
+    audio.volume = 0.5;
+    if (Math.abs(audio.volume - 0.5) > 0.01) setupGain(audio);
+    setVol(0);
     return audio;
   }
 
@@ -148,43 +179,50 @@
     musicBtn.textContent = on ? '🎶' : '🎵';
   }
 
+  // Плавное изменение громкости. Работает от нашей переменной curVol, а не от audio.volume
   function fadeTo(target, done) {
     clearInterval(fadeTimer);
-    const a = getAudio();
     fadeTimer = setInterval(() => {
-      const step = 0.04;
-      if (Math.abs(a.volume - target) <= step) {
-        a.volume = target;
+      const step = 0.03;
+      if (Math.abs(curVol - target) <= step) {
+        setVol(target);
         clearInterval(fadeTimer);
         if (done) done();
       } else {
-        a.volume = Math.max(0, Math.min(1, a.volume + (a.volume < target ? step : -step)));
+        setVol(curVol + (curVol < target ? step : -step));
       }
     }, 60);
   }
 
-  // silent = true: без подсказки, если музыки нет (автозапуск при открытии конверта)
+  // showHint = false: без подсказки, если музыки нет (автозапуск при открытии конверта)
   function playMusic(showHint) {
     if (musicBroken) { if (showHint) toast('Музыка скоро будет 🎶'); return; }
     const a = getAudio();
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    isOn = true;
+    setPlaying(true);
     const p = a.play();
+    const onFail = () => {
+      isOn = false;
+      setPlaying(false);
+      if (showHint || musicBroken) toast('Музыка скоро будет 🎶');
+    };
     if (p && p.then) {
-      p.then(() => { setPlaying(true); fadeTo(CONFIG.musicVolume); })
-        .catch(() => { setPlaying(false); if (showHint || musicBroken) toast('Музыка скоро будет 🎶'); });
+      p.then(() => { if (isOn) fadeTo(CONFIG.musicVolume); }).catch(onFail);
     } else {
-      setPlaying(true);
       fadeTo(CONFIG.musicVolume);
     }
   }
 
   function pauseMusic() {
-    if (!audio) return;
+    isOn = false;
     setPlaying(false);
-    fadeTo(0, () => audio.pause());
+    if (!audio) return;
+    fadeTo(0, () => { if (!isOn) audio.pause(); });
   }
 
   musicBtn.addEventListener('click', () => {
-    if (audio && !audio.paused) pauseMusic();
+    if (isOn) pauseMusic();
     else playMusic(true);
   });
 
